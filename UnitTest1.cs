@@ -17,6 +17,7 @@ public class ExampleTest : PageTest
 
 
 await Page.GotoAsync("https://web-dev.bluebnc.com/en-us");
+//gittest
 
           
             await Page.GetByRole(AriaRole.Link, new() { Name = "Balearic Islands Spain" }).ClickAsync();
