@@ -16,31 +16,32 @@ public class ExampleTest : PageTest
     {
 
 
-await Page.GotoAsync("https://web-dev.bluebnc.com/en-us");
-//gittest
+await Page.GotoAsync("https://web-dev.bluebnc.com/en-us"); // loads page
 
-          
+
+          // clicking and assuring tittle on balearic  islands
             await Page.GetByRole(AriaRole.Link, new() { Name = "Balearic Islands Spain" }).ClickAsync();
             await Expect(Page).ToHaveTitleAsync("Luxury Yacht Charter Balearic Islands, Spain - Day & Term Charters - Exclusive Yacht Rentals | Bluebnc");
-
+// selects salmans  test boat
              await Page.GetByRole(AriaRole.Link, new() { Name = "Salman's Test Boat Balearic Islands, Spain" }).ClickAsync();
-             await Expect(Page).ToHaveURLAsync("https://web-dev.bluebnc.com/en-us/boat/2771");
+             await Expect(Page).ToHaveURLAsync("https://web-dev.bluebnc.com/en-us/boat/2771");  //expects  the url
 
-              var charterEnquiryButton = Page.GetByRole(AriaRole.Button, new() { Name = "Charter Enquiry" });
+              var charterEnquiryButton = Page.GetByRole(AriaRole.Button, new() { Name = "Charter Enquiry" }); //clicks  on  charter enquiry button
 
                           await charterEnquiryButton.ClickAsync();
-                          // await Task.Delay(3000);
 
+                          //waits  for  checkindate and checkout date 
+            
                           await Page.WaitForSelectorAsync("#CheckinDate");
                          await Page.WaitForSelectorAsync("#CheckoutDate");
 
                           await Page.ClickAsync("#CheckinDate");
 
-                        //  await   date.ClickAsync();
+                
                  
         var dayContainer = Page.Locator("div.dayContainer");
 
-        var availableDates = await dayContainer.Locator("span:not(.flatpickr-disabled)").AllAsync();
+        var availableDates = await dayContainer.Locator("span:not(.flatpickr-disabled)").AllAsync(); //selects the first  available  test
 
         await availableDates.First().ClickAsync();
      
@@ -49,7 +50,7 @@ await Page.GotoAsync("https://web-dev.bluebnc.com/en-us");
 
                           await Page.ClickAsync("#CheckoutDate");
 
-                        var dayContainer2= Page.Locator("div.dayContainer").Nth(1);
+                        var dayContainer2= Page.Locator("div.dayContainer").Nth(1); //seletcts the 2nd  daycontainer
 
         var availableDates2 = await dayContainer2.Locator("span:not(.flatpickr-disabled)").AllAsync();
 
@@ -66,24 +67,24 @@ await Page.GotoAsync("https://web-dev.bluebnc.com/en-us");
                         await Page.SelectOptionAsync("#SelectedGuest", new[] { "1" });
 
                               await Page.ClickAsync("#btnContinue");
-                              //  await Task.Delay(1000); 
-
+                           
+                  // filling in boxes
                                   await Page.FillAsync("#ContactVm_Name", "John Doe");
                                   await Page.FillAsync("#ContactVm_Phone", "012847838810");
                                   await Page.FillAsync("#ContactVm_Email", "nomadshomoy@gmail.com");
                                   await Page.FillAsync("#ContactVm_Message", "Enquiry done");
-                                    // await Task.Delay(3000); 
+                                
 
                                     await Page.ClickAsync("#btnBookNow");
-                                    // await Task.Delay(5000);
-
+                                
+                    //ensures the  enquiry is done  !!
                                  var successMessageLocator = Page.Locator(".confirm-alert");
             await Expect(successMessageLocator).ToHaveTextAsync("Thank you for your enquiry, one of our colleagues will contact you shortly.");
-            // await Task.Delay(2000);
+
 
                                     
 
-
+//run settings  are  set  for  chomium -  dotnet  test --settings:demo.runsettings
 
                                                                       
 
