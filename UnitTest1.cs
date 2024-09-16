@@ -1,10 +1,3 @@
-//Bluebnc.com charter enquiry automation test . the whole  test  is done in 1  task, so  it  should result in succeeded : 1, Does  the  basic  booking test randomly on any destination and on any randomply selected boat. Run settings are set for  chromimum
-
-//dotnet test --settings:demo.runsettings
-
-
-
-
 
 using Microsoft.Playwright;
 using NUnit.Framework;
