@@ -81,7 +81,7 @@ await Page.GetByRole(AriaRole.Button, new() { Name = "Booking Request" }).ClickA
 await Page.GetByRole(AriaRole.Textbox, new() { Name = "Check in" }).ClickAsync();
 
 // Locate the first available date (today) in the "Check-in" calendar and click it
-var checkInElement = Page.Locator("div.CheckinDate span.flatpickr-day[aria-current='date']").Nth(0); // Assuming "check-in-calendar" class exists for check-in
+var checkInElement = Page.Locator("span.flatpickr-day [aria-current='date']").Nth(1); // Assuming "check-in-calendar" class exists for check-in
 await checkInElement.ClickAsync();
 
 // Get the day of the selected check-in date
