@@ -1,3 +1,11 @@
+//Bluebnc.com charter enquiry automation test . the whole  test  is done in 1  task, so  it  should result in succeeded : 1, Does  the  basic  booking test randomly on any destination and on any randomply selected boat. Run settings are set for  chromimum
+
+//dotnet test --settings:demo.runsettings
+
+
+
+
+
 using Microsoft.Playwright;
 using NUnit.Framework;
 using System;
@@ -27,10 +35,9 @@ namespace PlaywrightNUnitTests
             // Go to the website
             await Page.GotoAsync("https://web-dev.bluebnc.com/en-us");
 
-            // Wait for the destination section to be visible
-            await Page.Locator("h2.title.mark-accent.mt-6.mb-3:has-text('Our Yachting Destinations in the Balearics')")
-                .WaitForAsync(new LocatorWaitForOptions { Timeout = 10000 });  // 10-second timeout
 
+            await Page.Locator("h2.title.mark-accent.mt-6.mb-3:has-text('Our Yachting Destinations in the Balearics')")
+                .WaitForAsync(new LocatorWaitForOptions { Timeout = 10000 });
             // Define the destination cards
             var destinations = new[]
             {
@@ -43,91 +50,143 @@ namespace PlaywrightNUnitTests
             var random = new Random();
             var selectedDestination = destinations[random.Next(destinations.Length)];
 
-            // Click on the randomly selected destination
+
             await Page.Locator(selectedDestination.Selector).ClickAsync();
 
-            // Wait for the navigation to complete
+
             await Page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 10000 });
 
- await Expect(Page).ToHaveURLAsync(new Regex(selectedDestination.Url), new() { Timeout = 5000 });
-            // Assert that the URL matches the expected destination URL
-            // try
-            // {
-             
-            //     Console.WriteLine($"Successfully navigated to: {Page.Url}");
-            // }
-            // catch (PlaywrightException ex)
-            // {
-            //     Assert.Fail($"Failed to navigate to {selectedDestination.Url}. Current URL: {Page.Url}. Exception: {ex.Message}");
-            // }
+            await Expect(Page).ToHaveURLAsync(new Regex(selectedDestination.Url), new() { Timeout = 5000 });
+
 
             var boatCards = await Page.Locator("#search-result a.card").AllAsync();
 
-    // Check if any boat cards are found
-    if (boatCards.Count > 0)
-    {
-        // Select one randomly
-        var random2 = new Random();
-        var randomCard = boatCards[random2.Next(boatCards.Count)];
 
-        // Click on the randomly selected boat card
-        await randomCard.ClickAsync();
-        await Page.GetByText("All Photos ").Nth(1).ClickAsync();
-await Page.Locator(".boat-gallery > a:nth-child(4)").ClickAsync();
-await Page.GetByLabel("Close gallery").ClickAsync();
-await Page.GetByRole(AriaRole.Button, new() { Name = "close dialog" }).ClickAsync();
-await Page.GetByRole(AriaRole.Button, new() { Name = "Booking Request" }).ClickAsync();
+            if (boatCards.Count > 0)
+            {
 
-await Page.GetByRole(AriaRole.Textbox, new() { Name = "Check in" }).ClickAsync();
-
-// Locate the first available date (today) in the "Check-in" calendar and click it
-var checkInElement = Page.Locator("span.flatpickr-day [aria-current='date']").Nth(1); // Assuming "check-in-calendar" class exists for check-in
-await checkInElement.ClickAsync();
-
-// Get the day of the selected check-in date
-var checkInDate = int.Parse(await checkInElement.InnerTextAsync());
-
-// Click the "Check out" textbox to bring up the check-out calendar
-await Page.GetByRole(AriaRole.Textbox, new() { Name = "Check out" }).ClickAsync();
-
-// Use a CSS selector to locate the first available check-out date (avoiding disabled dates) in the "Check-out" calendar
-var availableCheckOutDate = Page.Locator("div.CheckoutDate span.flatpickr-day:not(.flatpickr-disabled)").Nth(1); // Assuming "check-out-calendar" class exists for check-out
-
-// Add an explicit wait to ensure the element is visible
-await availableCheckOutDate.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-
-// Click the next available date (check out date)
-await availableCheckOutDate.ClickAsync();
+                var random2 = new Random();
+                var randomCard = boatCards[random2.Next(boatCards.Count)];
+                await randomCard.ClickAsync();
 
 
-// Click on the select dropdown
-await Page.Locator("select#SelectedGuest").ClickAsync();
+                // code to  check  gallery !!if needed!!
+                // await Page.GetByText("All Photos ").Nth(1).ClickAsync();
+                // await Page.Locator(".boat-gallery > a:nth-child(4)").ClickAsync();
+                // await Page.GetByLabel("Close gallery").ClickAsync();
+                // await Page.GetByRole(AriaRole.Button, new() { Name = "close dialog" }).ClickAsync();
 
-// Select the option with value "1"
-await Page.Locator("select#SelectedGuest").SelectOptionAsync(new[] { "1" });
 
-await Page.GetByRole(AriaRole.Button, new() { Name = "Continue   →" }).ClickAsync();
-await Page.Locator("#ContactVm_Name").ClickAsync();
-await Page.Locator("#ContactVm_Name").FillAsync("Guest");
-await Page.Locator("#ContactVm_Phone").ClickAsync();
-await Page.Locator("#ContactVm_Phone").FillAsync("108641216797");
-await Page.Locator("#ContactVm_Email").ClickAsync();
-await Page.Locator("#ContactVm_Email").FillAsync("nomadshomoy@gmail.com");
-await Page.Locator("#ContactVm_Message").ClickAsync();
-await Page.Locator("#ContactVm_Message").FillAsync("auto-test");
-await Page.GetByRole(AriaRole.Button, new() { Name = "Submit Request" }).ClickAsync();
-        await Task.Delay(5000);
-    }
-    else
-    {
-        Console.WriteLine("No boat cards found.");
-    }
+                await Page.GetByRole(AriaRole.Button, new() { Name = "Booking Request" }).ClickAsync();
+
+
+                var checkInDateInput = Page.Locator("#CheckinDate");
+
+                if (await checkInDateInput.CountAsync() == 0)
+                {
+                    Assert.Fail("Check-in date input not found.");
+                }
+                await checkInDateInput.ClickAsync();
+
+
+                await Page.WaitForSelectorAsync(".flatpickr-calendar.open");
+
+                // Select the first available check-in day
+                var firstAvailableCheckInDay = Page.Locator(".flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay)").Nth(0);
+                if (await firstAvailableCheckInDay.CountAsync() == 0)
+                {
+                    Assert.Fail("No available check-in date found.");
+                }
+                await firstAvailableCheckInDay.ClickAsync();
+
+                // Wait for the check-in calendar to close
+                await Page.WaitForSelectorAsync(".flatpickr-calendar.open", new PageWaitForSelectorOptions { State = WaitForSelectorState.Hidden });
+
+
+                var checkOutDateInput = Page.Locator("#CheckoutDate");
+
+
+                // Explicit wait for the element to be visible
+                await checkOutDateInput.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
+
+                await checkOutDateInput.ClickAsync();
+                await Page.WaitForSelectorAsync(".flatpickr-calendar.open", new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+
+
+                var currentDayElement = Page.Locator("span.flatpickr-day.today[aria-current='date']");
+
+                // Find the next available day by iterating over following siblings !! needed for  the  boats  which  has longer booking requirements 3/5/7 days !!
+                bool nextDayFound = false;
+                int siblingIndex = 1;
+
+                while (!nextDayFound)
+                {
+
+                    var nextDayElement = currentDayElement.Locator($"xpath=following-sibling::span[{siblingIndex}]").Nth(1);
+
+
+
+                    if (await nextDayElement.CountAsync() == 0)
+                    {
+                        Console.WriteLine("No more available days");
+                        break;
+                    }
+
+
+                    var classAttribute = await nextDayElement.GetAttributeAsync("class");
+
+
+                    bool isDisabled = classAttribute != null && classAttribute.Contains("flatpickr-disabled");
+
+                    if (!isDisabled)
+                    {
+
+                        await nextDayElement.ClickAsync();
+                        nextDayFound = true;
+                        Console.WriteLine("Next available day clicked");
+                    }
+                    else
+                    {
+                        // Increment the index to move to the next sibling
+                        siblingIndex++;
+                    }
+                }
+
+
+                // guest-dropdown
+                await Page.Locator("select#SelectedGuest").ClickAsync();
+
+                await Page.Locator("select#SelectedGuest").SelectOptionAsync(new[] { "1" });
+
+                await Page.GetByRole(AriaRole.Button, new() { Name = "Continue   →" }).ClickAsync();
+                //form-page
+                await Page.Locator("#ContactVm_Name").ClickAsync();
+                await Page.Locator("#ContactVm_Name").FillAsync("Guest");
+                await Page.Locator("#ContactVm_Phone").ClickAsync();
+                await Page.Locator("#ContactVm_Phone").FillAsync("108641216797");
+                await Page.Locator("#ContactVm_Email").ClickAsync();
+                await Page.Locator("#ContactVm_Email").FillAsync("nomadshomoy@gmail.com");
+                await Page.Locator("#ContactVm_Message").ClickAsync();
+                await Page.Locator("#ContactVm_Message").FillAsync("auto-test");
+                await Page.GetByRole(AriaRole.Button, new() { Name = "Submit Request" }).ClickAsync();
+                await Task.Delay(2000);
+                await Page.WaitForSelectorAsync("div.confirm-alert");
+
+                // passes the  test if matches  the  confirm  alert
+                var confirmAlert = Page.Locator("div.confirm-alert");
+                await Expect(confirmAlert).ToBeVisibleAsync();
+                await Expect(confirmAlert).ToHaveTextAsync("Thank you for your request, one of our colleagues will contact you shortly.");
+
+            }
+            else
+            {
+                Console.WriteLine("No boat cards found.");
+            }
         }
 
         [TearDown]
         public async Task TearDown()
         {
-            // Close the browser after the test
             await _browser.CloseAsync();
         }
     }
